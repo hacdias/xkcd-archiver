@@ -8,6 +8,7 @@
   "dependencies": {
     "fs-extra": "^7.0.1",
     "node-fetch": "^2.4.0",
+    "tachyons": "^4.11.1",
     "yargs": "^13.2.2"
   }
 }
