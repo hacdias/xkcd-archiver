@@ -1,0 +1,13 @@
+{
+  "name": "xkcd-clone",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "fs-extra": "^7.0.1",
+    "node-fetch": "^2.4.0",
+    "yargs": "^13.2.2"
+  }
+}
