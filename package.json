@@ -2,9 +2,12 @@
   "name": "xkcd-clone",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
-  "author": "",
-  "license": "ISC",
+  "main": "./lib/index.js",
+  "bin": {
+    "xkcd-clone": "./bin/index.js"
+  },
+  "license": "MIT",
+  "author": "Henrique Dias <hacdias@gmail.com>",
   "dependencies": {
     "fs-extra": "^7.0.1",
     "node-fetch": "^2.4.0",
