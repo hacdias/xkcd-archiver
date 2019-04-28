@@ -2,7 +2,7 @@
 
 const fs = require('fs-extra')
 const yargs = require('yargs')
-const { basename, join } = require('path')
+const { basename, extname, join } = require('path')
 const { getLatestId, getComic } = require('../lib/xkcd')
 const { homePage, comicPage } = require('../lib/html')
 const { pad, progress } = require('../lib/helpers')
@@ -26,8 +26,8 @@ const argv = yargs
 async function write ({ data, img }, dir) {
   try {
     await fs.outputJSON(join(dir, 'info.json'), data, { spaces: '\t' })
-    const dest = fs.createWriteStream(join(dir, basename(data.img)))
-    img.body.pipe(dest)
+    await fs.outputFile(join(dir, basename(data.img)), img)
+    await fs.outputFile(join(dir, `image.${extname(data.img)}`), img)
     await fs.outputFile(join(dir, 'index.html'), comicPage(data))
   } catch (err) {
     await fs.remove(dir)
@@ -68,15 +68,15 @@ async function run () {
 
       let comic = null
 
-      const info = {
+      let info = {
         id: i,
-        title: comic.data.title,
         dir: dir,
         num: num
       }
 
       try {
         comic = await getComic(i)
+        info.title = comic.data.title
         await write(comic, dir)
         added.push(info)
       } catch (err) {
