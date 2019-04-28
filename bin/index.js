@@ -55,40 +55,55 @@ async function run () {
       const num = pad(i, 4)
       const dir = join(argv.dir, num)
 
+      progress(`📦 Fetching ${i} out of ${latest}`)
+
       if (await fs.pathExists(dir)) {
         const data = await fs.readJSON(join(dir, 'info.json'))
         added.push({ id: i, title: data.title, num })
         await fs.outputFile(join(dir, 'index.html'), comicPage(data))
         continue
       } else if (i === 404) {
-        progress(`📦 404 not found 😵`)
         continue
-      } else {
-        progress(`📦 Fetching ${i} out of ${latest}`)
       }
 
       let comic = null
 
-      try {
-        comic = await getComic(i)
-      } catch (err) {
-        progress(`😢 Could not fetch ${i}, will try again later\n`)
-        errored.push(i)
-      }
-
-      await write(comic, dir)
-      added.push({
+      const info = {
         id: i,
         title: comic.data.title,
+        dir: dir,
         num: num
-      })
+      }
+
+      try {
+        comic = await getComic(i)
+        await write(comic, dir)
+        added.push(info)
+      } catch (err) {
+        progress(`😢 Could not fetch ${i}, will try again later\n`)
+        errored.push(info)
+      }
     }
   } catch (err) {
     console.log(`🐉 ${err.stack}`)
     process.exit(1)
   }
 
-  // TODO: redownload errored
+  for (const info of errored) {
+    const { id, dir, num } = info
+    for (let i = 0; i < 3; i++) {
+      try {
+        const comic = await getComic(id)
+        await write(comic, dir)
+        added.push(info)
+        break
+      } catch (err) {
+        if (i === 2) {
+          console.log(`😢 ${num} could not be fetched: ${err.toString()}`)
+        }
+      }
+    }
+  }
 
   if (errored.length === 0) {
     progress(`📦 All comics fetched\n`)
@@ -100,26 +115,5 @@ async function run () {
   await fs.copyFile(join(__dirname, '../node_modules/tachyons/css/tachyons.min.css'), join(argv.dir, 'tachyons.css'))
   await fs.outputFile(join(argv.dir, 'index.html'), homePage(added))
 }
-/*
-
-const clone = async ({ baseDir, empty, onlyMissing }) => {
-  /*
-
-  for (const num of errored) {
-    for (let i = 0; i < 3; i++) {
-      try {
-        const comic = await getComic(i)
-        await write(comic, dir)
-        break
-      } catch (err) {
-        if (i === 2) {
-          console.log(`😢 ${num} could not be fetched: ${err.toString()}`)
-        }
-      }
-    }
-  }
-
-}
- */
 
 run()
