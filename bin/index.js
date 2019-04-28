@@ -27,7 +27,7 @@ async function write ({ data, img }, dir) {
   try {
     await fs.outputJSON(join(dir, 'info.json'), data, { spaces: '\t' })
     await fs.outputFile(join(dir, basename(data.img)), img)
-    await fs.outputFile(join(dir, `image.${extname(data.img)}`), img)
+    await fs.outputFile(join(dir, `image${extname(data.img)}`), img)
     await fs.outputFile(join(dir, 'index.html'), comicPage(data))
   } catch (err) {
     await fs.remove(dir)
