@@ -113,6 +113,7 @@ async function run () {
 
   added = added.sort((a, b) => a.num - b.num)
   await fs.copyFile(join(__dirname, '../node_modules/tachyons/css/tachyons.min.css'), join(argv.dir, 'tachyons.css'))
+  await fs.copyFile(join(__dirname, '../node_modules/tachyons-columns/css/tachyons-columns.min.css'), join(argv.dir, 'tachyons-columns.css'))
   await fs.outputFile(join(argv.dir, 'index.html'), homePage(added))
 }
 
