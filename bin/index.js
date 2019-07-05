@@ -23,12 +23,12 @@ const argv = yargs
   .help()
   .argv
 
-async function write ({ data, img }, dir) {
+async function write ({ data, img }, dir, latest) {
   try {
     await fs.outputJSON(join(dir, 'info.json'), data, { spaces: '\t' })
     await fs.outputFile(join(dir, basename(data.img)), img)
     await fs.outputFile(join(dir, `image${extname(data.img)}`), img)
-    await fs.outputFile(join(dir, 'index.html'), comicPage(data))
+    await fs.outputFile(join(dir, 'index.html'), comicPage(data, latest))
   } catch (err) {
     await fs.remove(dir)
     throw err
@@ -41,9 +41,11 @@ async function run () {
   let added = []
   let errored = []
 
+  let latest = null
+
   try {
     console.log(`🔍 Finding the latest comic`)
-    const latest = await getLatestId()
+    latest = await getLatestId()
     console.log(`😁 Found! We're on comic number ${latest}!`)
 
     await fs.ensureDir(argv.dir)
@@ -60,7 +62,7 @@ async function run () {
       if (await fs.pathExists(dir)) {
         const data = await fs.readJSON(join(dir, 'info.json'))
         added.push({ id: i, title: data.title, num })
-        await fs.outputFile(join(dir, 'index.html'), comicPage(data))
+        await fs.outputFile(join(dir, 'index.html'), comicPage(data, latest))
         continue
       } else if (i === 404) {
         continue
@@ -77,7 +79,7 @@ async function run () {
       try {
         comic = await getComic(i)
         info.title = comic.data.title
-        await write(comic, dir)
+        await write(comic, dir, latest)
         added.push(info)
       } catch (err) {
         progress(`😢 Could not fetch ${i}, will try again later\n`)
@@ -94,7 +96,7 @@ async function run () {
     for (let i = 0; i < 3; i++) {
       try {
         const comic = await getComic(id)
-        await write(comic, dir)
+        await write(comic, dir, latest)
         added.push(info)
         break
       } catch (err) {
