@@ -2,7 +2,7 @@
 
 [![](https://img.shields.io/npm/v/xkcd-clone.svg?style=flat-square)](https://www.npmjs.com/package/xkcd-clone)
 
-> Clones the XKCD comics.
+> Clones the xkcd comics.
 
 ## Usage
 

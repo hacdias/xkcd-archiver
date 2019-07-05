@@ -1,7 +1,7 @@
 {
   "name": "xkcd-clone",
   "version": "1.0.7",
-  "description": "Clone XKCD comics.",
+  "description": "Clone xkcd comics.",
   "main": "./lib/index.js",
   "bin": {
     "xkcd-clone": "./bin/index.js"
