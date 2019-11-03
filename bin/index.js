@@ -44,12 +44,12 @@ async function run () {
   console.log(`😊 Going to clone XKCD to ${argv.dir}`)
 
   let added = []
-  let errored = []
+  const errored = []
 
   let latest = null
 
   try {
-    console.log(`🔍 Finding the latest comic`)
+    console.log('🔍 Finding the latest comic')
     latest = await getLatestId()
     console.log(`😁 Found! We're on comic number ${latest}!`)
 
@@ -75,7 +75,7 @@ async function run () {
 
       let comic = null
 
-      let info = {
+      const info = {
         id: i,
         dir: dir,
         num: num
@@ -113,9 +113,9 @@ async function run () {
   }
 
   if (errored.length === 0) {
-    progress(`📦 All comics fetched\n`)
+    progress('📦 All comics fetched\n')
   } else {
-    progress(`📦 Some comics fetched\n`)
+    progress('📦 Some comics fetched\n')
   }
 
   added = added.sort((a, b) => a.num - b.num)
