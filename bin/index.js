@@ -24,11 +24,16 @@ const argv = yargs
   .argv
 
 async function write ({ data, img }, dir, latest) {
+  const hasImage = img !== null
+
   try {
     await fs.outputJSON(join(dir, 'info.json'), data, { spaces: '\t' })
-    await fs.outputFile(join(dir, basename(data.img)), img)
-    await fs.outputFile(join(dir, `image${extname(data.img)}`), img)
-    await fs.outputFile(join(dir, 'index.html'), comicPage(data, latest))
+    await fs.outputFile(join(dir, 'index.html'), comicPage(data, latest, hasImage))
+
+    if (hasImage) {
+      await fs.outputFile(join(dir, basename(data.img)), img)
+      await fs.outputFile(join(dir, `image${extname(data.img)}`), img)
+    }
   } catch (err) {
     await fs.remove(dir)
     throw err
@@ -114,6 +119,8 @@ async function run () {
   }
 
   added = added.sort((a, b) => a.num - b.num)
+  await fs.remove(join(argv.dir, 'latest'))
+  await fs.copy(join(argv.dir, latest.toString()), join(argv.dir, 'latest'))
   await fs.copyFile(join(__dirname, '../node_modules/tachyons/css/tachyons.min.css'), join(argv.dir, 'tachyons.css'))
   await fs.copyFile(join(__dirname, '../node_modules/tachyons-columns/css/tachyons-columns.min.css'), join(argv.dir, 'tachyons-columns.css'))
   await fs.outputFile(join(argv.dir, 'index.html'), homePage(added))
