@@ -9,7 +9,7 @@
   "license": "MIT",
   "author": "Henrique Dias <hacdias@gmail.com>",
   "dependencies": {
-    "fs-extra": "^8.1.0",
+    "fs-extra": "^9.0.1",
     "node-fetch": "^2.6.0",
     "tachyons": "^4.11.1",
     "tachyons-columns": "^1.0.5",
