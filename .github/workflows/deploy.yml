@@ -1,0 +1,25 @@
+name: 'Deploy /ipns/xkcd.hacdias.com'
+on:
+  push:
+    branches:
+      - master
+  schedule:
+    - cron:  '0 0 * * *'
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Use Node.js 12.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
+      - run: npm install
+      - run: npx xkcd-clone -d output
+      - run: npx ipfs-deploy output -C -O -u pinata -p ipfs-cluster -d cloudflare
+        env:
+          IPFS_DEPLOY_CLOUDFLARE__ZONE: hacdias.com
+          IPFS_DEPLOY_CLOUDFLARE__RECORD: _dnslink.xkcd.hacdias.com
