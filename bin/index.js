@@ -1,13 +1,15 @@
 #!/usr/bin/env node
 
-const fs = require('fs-extra')
-const yargs = require('yargs')
-const { basename, extname, join } = require('path')
-const { getLatestId, getComic } = require('../lib/xkcd')
-const { homePage, comicPage } = require('../lib/html')
-const { pad, progress } = require('../lib/helpers')
+import fs from 'fs-extra'
+import yargs from 'yargs'
+import * as url from 'url'
+import { hideBin } from 'yargs/helpers'
+import { basename, extname, join } from 'path'
+import { getLatestId, getComic } from '../lib/xkcd.js'
+import { homePage, comicPage } from '../lib/html.js'
+import { pad, progress } from '../lib/helpers.js'
 
-const argv = yargs
+const argv = yargs(hideBin(process.argv))
   .usage('$0', 'Clones XKCD comics. By default it only downloads the missing comics.')
   .scriptName('xkcd-clone')
   .option('dir', {
@@ -31,8 +33,8 @@ async function write ({ data, img }, dir, latest) {
     await fs.outputFile(join(dir, 'index.html'), comicPage(data, latest, hasImage))
 
     if (hasImage) {
-      await fs.outputFile(join(dir, basename(data.img)), img)
-      await fs.outputFile(join(dir, `image${extname(data.img)}`), img)
+      await fs.outputFile(join(dir, basename(data.img)), Buffer.from(img))
+      await fs.outputFile(join(dir, `image${extname(data.img)}`), Buffer.from(img))
     }
   } catch (err) {
     await fs.remove(dir)
@@ -118,11 +120,13 @@ async function run () {
     progress('📦 Some comics fetched\n')
   }
 
+  const currDirectory = url.fileURLToPath(new URL('.', import.meta.url))
+
   added = added.sort((a, b) => a.num - b.num)
   await fs.remove(join(argv.dir, 'latest'))
-  await fs.copy(join(argv.dir, latest.toString()), join(argv.dir, 'latest'))
-  await fs.copyFile(join(__dirname, '../node_modules/tachyons/css/tachyons.min.css'), join(argv.dir, 'tachyons.css'))
-  await fs.copyFile(join(__dirname, '../node_modules/tachyons-columns/css/tachyons-columns.min.css'), join(argv.dir, 'tachyons-columns.css'))
+  await fs.copy(join(argv.dir, pad(latest, 4)), join(argv.dir, 'latest'))
+  await fs.copyFile(join(currDirectory, '../node_modules/tachyons/css/tachyons.min.css'), join(argv.dir, 'tachyons.css'))
+  await fs.copyFile(join(currDirectory, '../node_modules/tachyons-columns/css/tachyons-columns.min.css'), join(argv.dir, 'tachyons-columns.css'))
   await fs.outputFile(join(argv.dir, 'index.html'), homePage(added))
 }
 
