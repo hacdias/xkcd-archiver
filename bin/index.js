@@ -8,6 +8,7 @@ import { basename, extname, join } from 'path'
 import { getLatestId, getComic } from '../lib/xkcd.js'
 import { homePage, comicPage } from '../lib/html.js'
 import { pad, progress } from '../lib/helpers.js'
+import { createRequire } from 'module'
 
 const argv = yargs(hideBin(process.argv))
   .usage('$0', 'Clones XKCD comics. By default it only downloads the missing comics.')
@@ -120,13 +121,13 @@ async function run () {
     progress('📦 Some comics fetched\n')
   }
 
-  const currDirectory = url.fileURLToPath(new URL('.', import.meta.url))
+  const require = createRequire(import.meta.url)
 
   added = added.sort((a, b) => a.num - b.num)
   await fs.remove(join(argv.dir, 'latest'))
   await fs.copy(join(argv.dir, pad(latest, 4)), join(argv.dir, 'latest'))
-  await fs.copyFile(join(currDirectory, '../node_modules/tachyons/css/tachyons.min.css'), join(argv.dir, 'tachyons.css'))
-  await fs.copyFile(join(currDirectory, '../node_modules/tachyons-columns/css/tachyons-columns.min.css'), join(argv.dir, 'tachyons-columns.css'))
+  await fs.copyFile(join(require.resolve('tachyons'), '../tachyons.min.css'), join(argv.dir, 'tachyons.css'))
+  await fs.copyFile(join(require.resolve('tachyons-columns'), '../../css/tachyons-columns.min.css'), join(argv.dir, 'tachyons-columns.css'))
   await fs.outputFile(join(argv.dir, 'index.html'), homePage(added))
 }
 
