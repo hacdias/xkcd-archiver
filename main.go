@@ -52,6 +52,7 @@ var cmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
+		log.Printf("Latest comic is %d.\n", latest)
 
 		if from == 0 {
 			from = 1
@@ -73,7 +74,7 @@ var cmd = &cobra.Command{
 			return err
 		}
 
-		log.Printf("Downloading comics from %d to %d\n", from, to)
+		log.Printf("Downloading comics from %d to %d.\n", from, to)
 
 		comicTemplate, err := getTemplate("comic")
 		if err != nil {
@@ -92,6 +93,8 @@ var cmd = &cobra.Command{
 				// Comic 404 does not exist.
 				continue
 			}
+
+			log.Printf("Downloading comic %d.\n", id)
 
 			comicDir := filepath.Join(out, fmt.Sprintf("%d", id))
 			metadata, err := getComic(comicDir, id)
@@ -142,41 +145,18 @@ var cmd = &cobra.Command{
 				return err
 			}
 
-			// added = added.sort((a, b) => a.num - b.num)
-			// await fs.outputFile(join(argv.dir, 'index.html'), homePage(added))
-
-			styles, err := assets.ReadFile("assets/styles.css")
+			err = copyAsset(out, "styles.css")
 			if err != nil {
 				return err
 			}
-			err = os.WriteFile(filepath.Join(out, "styles.css"), styles, filePermissions)
+
+			err = copyAsset(out, "favicon.ico")
 			if err != nil {
 				return err
 			}
 		}
 
-		// for (const info of errored) {
-		// 	const { id, dir, num } = info
-		// 	for (let i = 0; i < 3; i++) {
-		// 		try {
-		// 			const comic = await getComic(id)
-		// 			await write(comic, dir, latest)
-		// 			added.push(info)
-		// 			break
-		// 		} catch (err) {
-		// 			if (i === 2) {
-		// 				console.log(`😢 ${num} could not be fetched: ${err.toString()}`)
-		// 			}
-		// 		}
-		// 	}
-		// }
-
-		// if (errored.length === 0) {
-		// 	progress('📦 All comics fetched\n')
-		// } else {
-		// 	progress('📦 Some comics fetched\n')
-		// }
-
+		log.Println("Comics fetched.")
 		return nil
 	},
 }
@@ -200,4 +180,12 @@ func getTemplate(name string) (*template.Template, error) {
 		return nil, err
 	}
 	return template.New("").Parse(string(comicBytes))
+}
+
+func copyAsset(out, filename string) error {
+	data, err := assets.ReadFile("assets/" + filename)
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(filepath.Join(out, filename), data, filePermissions)
 }
