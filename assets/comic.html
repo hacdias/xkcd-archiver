@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{{ .Num }} - {{ .Title }} - XKCD Archive</title>
+  <meta charset=utf-8>
+  <meta name=viewport content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex">
+  <link rel="stylesheet" href="../styles.css"/>
+</head>
+<body>
+  <main>
+    <h1>{{ .Num }} - {{ .Title }}</h1>
+    <nav>
+      {{- with .Prev }}
+        <a href="{{ . }}" aria-label="Previous" role="button"><span aria-hidden="true">← Prev</span></a>
+      {{- else }}
+        <a aria-disabled="true" aria-label="Previous" role="button" tabindex="-1"><span aria-hidden="true">← Prev</span></a>
+      {{- end }}
+
+      <a role="button" href="../">Home</a>
+
+      {{- with .Next }}
+        <a href="{{ . }}" aria-label="Next" role="button"><span aria-hidden="true">Next →</span></a>
+      {{- else }}
+        <a aria-disabled="true" aria-label="Next" role="button" tabindex="-1"><span aria-hidden="true">Next →</span></a>
+      {{- end }}
+    </nav>
+    {{ if .Image }}
+    <figure>
+      <img src="./{{ .Image }}" {{ with .Title }}title="{{ . }}"{{ end }} {{ with .Alt }}alt="{{ . }}"{{ end }}>
+    </figure>
+    {{ end }}
+    <p>
+      This is an <a rel="noopener noreferrer" href="https://github.com/hacdias/xkcd-archiver">archival copy</a> of the works
+      from <a rel="noopener noreferrer" href="https://xkcd.com/">xkcd.com</a>.
+    </p>
+  </main>
+</body>
+</html>

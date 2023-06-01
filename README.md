@@ -1,13 +1,19 @@
-# xkcd-clone
+# xkcd-archiver
 
-[![](https://img.shields.io/npm/v/xkcd-clone.svg?style=flat-square)](https://www.npmjs.com/package/xkcd-clone)
-
-> Clones the xkcd comics.
+> A cloner of the [XKCD](https://xkcd.com/) comics for archiving purposes.
 
 ## Usage
 
 ```
-npx xkcd-clone -d <directory> [--empty]
+Usage:
+  xkcd-archiver output [flags]
+
+Flags:
+      --empty       empty output directory
+  -f, --from uint   first comic to download (default 1)
+  -h, --help        help for xkcd-archiver
+      --skip-html   do not generate HTML files
+  -t, --to uint     last comic to download
 ```
 
 ## Contributing

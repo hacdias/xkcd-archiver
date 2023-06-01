@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>XKCD Archive</title>
+  <meta charset=utf-8>
+  <meta name=viewport content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex">
+  <link rel="stylesheet" href="./styles.css"/>
+</head>
+<body>
+  <main>
+    <h1>XKCD Archive</h1>
+    <ul>
+      {{ range .Comics }}
+        <li><a href="./{{ .Num }}/">{{ .Num }} - {{ .Title }}</a></li>
+      {{ end }}
+    </ul>
+    <p>
+      This is an <a rel="noopener noreferrer" href="https://github.com/hacdias/xkcd-archiver">archival copy</a> of the works
+      from <a rel="noopener noreferrer" href="https://xkcd.com/">xkcd.com</a>.
+    </p>
+  </main>
+</body>
+</html>
