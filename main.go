@@ -1,97 +1,157 @@
 package main
 
 import (
-	"encoding/json"
+	"bytes"
+	"embed"
 	"fmt"
+	"html/template"
+	"io/fs"
 	"log"
 	"os"
-	"path"
+	"path/filepath"
+	"sort"
 
-	"github.com/karlseguin/typed"
 	"github.com/spf13/cobra"
 )
+
+const (
+	dirPermissions  fs.FileMode = 0744
+	filePermissions fs.FileMode = 0666
+)
+
+var (
+	//go:embed assets/*
+	assets embed.FS
+)
+
+func init() {
+	cmd.Flags().Bool("empty", false, "empty output directory")
+	cmd.Flags().Bool("skip-html", false, "do not generate HTML files")
+	cmd.Flags().UintP("from", "f", 1, "first comic to download")
+	cmd.Flags().UintP("to", "t", 0, "last comic to download")
+}
 
 func main() {
 	if err := cmd.Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
-
-}
-func init() {
-	cmd.Flags().Bool("empty", false, "empty output directory")
 }
 
 var cmd = &cobra.Command{
-	Use:               "xkcd-archiver output",
-	Args:              cobra.ExactArgs(1),
-	CompletionOptions: cobra.CompletionOptions{DisableDefaultCmd: true},
+	Use:  "xkcd-archiver output",
+	Args: cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		outputDir := args[0]
-
-		empty, err := cmd.Flags().GetBool("empty")
-		if err != nil {
-			return err
-		}
-
-		if empty {
-			err = os.RemoveAll(outputDir)
-			if err != nil {
-				return err
-			}
-		}
-
-		err = os.MkdirAll(outputDir, 0744)
-		if err != nil {
-			return err
-		}
+		empty, _ := cmd.Flags().GetBool("empty")
+		skipHTML, _ := cmd.Flags().GetBool("skip-html")
+		from, _ := cmd.Flags().GetUint("from")
+		to, _ := cmd.Flags().GetUint("to")
+		out := args[0]
 
 		latest, err := getLatestID()
 		if err != nil {
 			return err
 		}
 
-		log.Println("Latest comic ID is", latest)
+		if from == 0 {
+			from = 1
+		}
 
-		// let added = []
-		// const errored = []
-		// let latest = null
+		if to == 0 {
+			to = uint(latest)
+		}
 
-		for i := 1; i <= latest; i++ {
-			// Comic 404 does not exist.
-			if i == 404 {
+		if empty {
+			err := os.RemoveAll(out)
+			if err != nil {
+				return err
+			}
+		}
+
+		err = os.MkdirAll(out, dirPermissions)
+		if err != nil {
+			return err
+		}
+
+		log.Printf("Downloading comics from %d to %d\n", from, to)
+
+		comicTemplate, err := getTemplate("comic")
+		if err != nil {
+			return err
+		}
+
+		homeTemplate, err := getTemplate("home")
+		if err != nil {
+			return err
+		}
+
+		homeData := &homeData{}
+
+		for id := from; id <= to; id++ {
+			if id == 404 {
+				// Comic 404 does not exist.
 				continue
 			}
 
-			num := fmt.Sprintf("%04d", i)
-			comicDir := path.Join(outputDir, num)
-
-			_, err := os.Stat(comicDir)
-			fmt.Println(err, os.IsNotExist(err))
-			if os.IsNotExist(err) {
-				info, img, err := getComic(i)
-				if err != nil {
-					//  errored.push(info)
-					return nil
-				}
-				err = writeComic(info, img, comicDir)
-				if err != nil {
-					return nil
-				}
-
-				// 		const info = {
-				// 			id: i,
-				// 			dir: dir,
-				// 			num: num
-				// 		}
-				// added.push(info)
-
-			} else if err != nil {
+			comicDir := filepath.Join(out, fmt.Sprintf("%d", id))
+			metadata, err := getComic(comicDir, id)
+			if err != nil {
 				return err
-			} else {
-				// const data = await fs.readJSON(join(dir, 'info.json'))
-				// added.push({ id: i, title: data.title, num })
-				// await fs.outputFile(join(dir, 'index.html'), comicPage(data, latest))
+			}
+
+			data := &comicData{
+				Num:   id,
+				Title: metadata.String("title"),
+				Alt:   metadata.String("alt"),
+				Image: metadata.String("img"),
+			}
+
+			if id > 1 {
+				data.Prev = fmt.Sprintf("../%d/", id-1)
+			}
+
+			if id < uint(latest) {
+				data.Next = fmt.Sprintf("../%d/", id+1)
+			}
+
+			var b bytes.Buffer
+			err = comicTemplate.Execute(&b, data)
+			if err != nil {
+				return err
+			}
+			err = os.WriteFile(filepath.Join(comicDir, "index.html"), b.Bytes(), filePermissions)
+			if err != nil {
+				return err
+			}
+
+			homeData.Comics = append(homeData.Comics, data)
+		}
+
+		if !skipHTML {
+			sort.Slice(homeData.Comics, func(i, j int) bool {
+				return homeData.Comics[i].Num > homeData.Comics[j].Num
+			})
+
+			var b bytes.Buffer
+			err = homeTemplate.Execute(&b, homeData)
+			if err != nil {
+				return err
+			}
+			err = os.WriteFile(filepath.Join(out, "index.html"), b.Bytes(), filePermissions)
+			if err != nil {
+				return err
+			}
+
+			// added = added.sort((a, b) => a.num - b.num)
+			// await fs.outputFile(join(argv.dir, 'index.html'), homePage(added))
+
+			styles, err := assets.ReadFile("assets/styles.css")
+			if err != nil {
+				return err
+			}
+			err = os.WriteFile(filepath.Join(out, "styles.css"), styles, filePermissions)
+			if err != nil {
+				return err
 			}
 		}
 
@@ -117,42 +177,27 @@ var cmd = &cobra.Command{
 		// 	progress('📦 Some comics fetched\n')
 		// }
 
-		// added = added.sort((a, b) => a.num - b.num)
-		// await fs.remove(join(argv.dir, 'latest'))
-		// await fs.copy(join(argv.dir, pad(latest, 4)), join(argv.dir, 'latest'))
-		// await fs.copyFile(join(require.resolve('tachyons'), '../tachyons.min.css'), join(argv.dir, 'tachyons.css'))
-		// await fs.copyFile(join(require.resolve('tachyons-columns'), '../../css/tachyons-columns.min.css'), join(argv.dir, 'tachyons-columns.css'))
-		// await fs.outputFile(join(argv.dir, 'index.html'), homePage(added))
-
 		return nil
 	},
 }
 
-func writeComic(info typed.Typed, img []byte, directory string) error {
-	err := os.MkdirAll(directory, 0744)
+type comicData struct {
+	Num   uint
+	Title string
+	Alt   string
+	Prev  string
+	Next  string
+	Image string
+}
+
+type homeData struct {
+	Comics []*comicData
+}
+
+func getTemplate(name string) (*template.Template, error) {
+	comicBytes, err := assets.ReadFile("assets/" + name + ".html")
 	if err != nil {
-		return err
+		return nil, err
 	}
-
-	infoRaw, err := json.MarshalIndent(info, "", "  ")
-	if err != nil {
-		return err
-	}
-
-	err = os.WriteFile(path.Join(directory, "info.json"), infoRaw, 0666)
-	if err != nil {
-		return err
-	}
-
-	// TODO: make index.html
-
-	if img != nil {
-		imgExtension := path.Ext(info.String("img"))
-		err = os.WriteFile(path.Join(directory, "image"+imgExtension), img, 0666)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
+	return template.New("").Parse(string(comicBytes))
 }

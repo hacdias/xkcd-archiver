@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>XKCD Archive</title>
+  <meta charset=utf-8>
+  <meta name=viewport content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex">
+  <link rel="stylesheet" href="./styles.css"/>
+</head>
+<body>
+  <main>
+    <h1>XKCD Archive</h1>
+    <ul>
+      {{ range .Comics }}
+        <li><a href="./{{ .Num }}/">{{ .Num }} - {{ .Title }}</a></li>
+      {{ end }}
+    </ul>
+    <p>This work is licensed under a Creative Commons Attribution-NonCommercial 2.5 License.<br>Originally from <a rel="noopener noreferrer" href="https://xkcd.com/">xkcd.com</a>.</p>
+  </main>
+</body>
+</html>
