@@ -67,12 +67,11 @@ func getLatestID() (uint, error) {
 
 func getImage(url string) ([]byte, error) {
 	ext := path.Ext(url)
-	basename := strings.TrimSuffix(path.Base(url), ext)
-	dirname := path.Dir(url)
+	url = strings.TrimSuffix(url, ext)
 
-	data, err := get(fmt.Sprintf("%s/%s_2x%s", dirname, basename, ext))
+	data, err := get(url + "_2x" + ext)
 	if err != nil {
-		data, err = get(url)
+		data, err = get(url + ext)
 	}
 
 	return data, err
@@ -105,6 +104,8 @@ func ensureComic(out string, id uint) (typed.Typed, error) {
 		}
 
 		metadata["img"] = "./" + imgName
+	} else {
+		metadata["img"] = ""
 	}
 
 	infoBytes, err := json.MarshalIndent(metadata, "", "  ")
