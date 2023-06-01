@@ -1,14 +1,12 @@
-# xkcd-clone
+# xkcd-archiver
 
-[![](https://img.shields.io/npm/v/xkcd-clone.svg?style=flat-square)](https://www.npmjs.com/package/xkcd-clone)
+> TODO
 
-> Clones the xkcd comics.
+Why TODO
 
 ## Usage
 
-```
-npx xkcd-clone -d <directory> [--empty]
-```
+TODO
 
 ## Contributing
 
