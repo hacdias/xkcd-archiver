@@ -38,13 +38,17 @@ img {
   max-width: 100%;
 }
 
+nav {
+  margin: -4px 0 -4px 0;
+}
+
 nav a {
   background-color: var(--accent-darker);
   color: #FFF;
   border: 1.5px solid #333;
   font-weight: bold;
   padding: 1.5px 12px;
-  margin: 0 4px;
+  margin: 4px;
   text-decoration: none;
   border-radius: 3px;
   box-shadow: 0 0 5px 0 gray;
