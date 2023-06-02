@@ -31,6 +31,8 @@
     <figure>
       <img src="./{{ .Image }}" {{ with .Title }}title="{{ . }}"{{ end }} {{ with .Alt }}alt="{{ . }}"{{ end }}>
     </figure>
+    {{ else }}
+    <p>The image for this comic could not be archive. It likely is an interactive comic.</p>
     {{ end }}
     <p>
       This is an <a rel="noopener noreferrer" href="https://github.com/hacdias/xkcd-archiver">archival copy</a> of the works
