@@ -57,6 +57,10 @@ nav a:hover {
   box-shadow: none;
 }
 
+nav a[aria-disabled="true"] {
+  cursor: not-allowed;
+}
+
 ul {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));

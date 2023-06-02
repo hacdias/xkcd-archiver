@@ -103,18 +103,11 @@ var cmd = &cobra.Command{
 			}
 
 			data := &comicData{
-				Num:   id,
-				Title: metadata.String("title"),
-				Alt:   metadata.String("alt"),
-				Image: metadata.String("img"),
-			}
-
-			if id > 1 {
-				data.Prev = fmt.Sprintf("../%d/", id-1)
-			}
-
-			if id < uint(latest) {
-				data.Next = fmt.Sprintf("../%d/", id+1)
+				Num:    id,
+				Title:  metadata.String("title"),
+				Alt:    metadata.String("alt"),
+				Image:  metadata.String("img"),
+				Latest: latest,
 			}
 
 			var b bytes.Buffer
@@ -162,12 +155,11 @@ var cmd = &cobra.Command{
 }
 
 type comicData struct {
-	Num   uint
-	Title string
-	Alt   string
-	Prev  string
-	Next  string
-	Image string
+	Latest uint
+	Num    uint
+	Title  string
+	Alt    string
+	Image  string
 }
 
 type homeData struct {
@@ -179,7 +171,14 @@ func getTemplate(name string) (*template.Template, error) {
 	if err != nil {
 		return nil, err
 	}
-	return template.New("").Parse(string(comicBytes))
+	return template.New("").Funcs(template.FuncMap{
+		"minus": func(a, b uint) uint {
+			return a - b
+		},
+		"plus": func(a, b uint) uint {
+			return a + b
+		},
+	}).Parse(string(comicBytes))
 }
 
 func copyAsset(out, filename string) error {

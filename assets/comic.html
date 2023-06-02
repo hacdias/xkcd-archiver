@@ -13,19 +13,19 @@
   <main>
     <h1>{{ .Num }} - {{ .Title }}</h1>
     <nav>
-      {{- with .Prev }}
-        <a href="{{ . }}" aria-label="Previous" role="button"><span aria-hidden="true">← Prev</span></a>
+      <a href="../1/" aria-label="First" role="button"><span aria-hidden="true">|&lt;</span></a>
+      {{- if gt .Num 1 }}
+        <a href="../{{ minus .Num 1 }}/" aria-label="Previous" role="button"><span aria-hidden="true">← Prev</span></a>
       {{- else }}
         <a aria-disabled="true" aria-label="Previous" role="button" tabindex="-1"><span aria-hidden="true">← Prev</span></a>
       {{- end }}
-
       <a role="button" href="../">Home</a>
-
-      {{- with .Next }}
-        <a href="{{ . }}" aria-label="Next" role="button"><span aria-hidden="true">Next →</span></a>
+      {{- if lt .Num .Latest }}
+        <a href="../{{ plus .Num 1 }}/" aria-label="Next" role="button"><span aria-hidden="true">Next →</span></a>
       {{- else }}
         <a aria-disabled="true" aria-label="Next" role="button" tabindex="-1"><span aria-hidden="true">Next →</span></a>
       {{- end }}
+      <a href="../{{ .Latest }}/" aria-label="Last" role="button"><span aria-hidden="true">&gt;|</span></a>
     </nav>
     {{ if .Image }}
     <figure>
