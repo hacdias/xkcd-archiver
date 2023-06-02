@@ -15,15 +15,15 @@
     <nav>
       <a href="../1/" aria-label="First" role="button"><span aria-hidden="true">|&lt;</span></a>
       {{- if gt .Num 1 }}
-        <a href="../{{ minus .Num 1 }}/" aria-label="Previous" role="button"><span aria-hidden="true">← Prev</span></a>
+        <a href="../{{ minus .Num 1 }}/" aria-label="Previous" role="button"><span aria-hidden="true">&lt; Prev</span></a>
       {{- else }}
-        <a aria-disabled="true" aria-label="Previous" role="button" tabindex="-1"><span aria-hidden="true">← Prev</span></a>
+        <a aria-disabled="true" aria-label="Previous" role="button" tabindex="-1"><span aria-hidden="true">&lt; Prev</span></a>
       {{- end }}
       <a role="button" href="../">Home</a>
       {{- if lt .Num .Latest }}
-        <a href="../{{ plus .Num 1 }}/" aria-label="Next" role="button"><span aria-hidden="true">Next →</span></a>
+        <a href="../{{ plus .Num 1 }}/" aria-label="Next" role="button"><span aria-hidden="true">Next &gt;</span></a>
       {{- else }}
-        <a aria-disabled="true" aria-label="Next" role="button" tabindex="-1"><span aria-hidden="true">Next →</span></a>
+        <a aria-disabled="true" aria-label="Next" role="button" tabindex="-1"><span aria-hidden="true">Next &gt;</span></a>
       {{- end }}
       <a href="../{{ .Latest }}/" aria-label="Last" role="button"><span aria-hidden="true">&gt;|</span></a>
     </nav>
