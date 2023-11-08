@@ -2,6 +2,12 @@
 
 > A cloner of the [XKCD](https://xkcd.com/) comics for archiving purposes.
 
+## Install
+
+```
+go install go.hacdias.com/xkcd-archiver
+```
+
 ## Usage
 
 ```

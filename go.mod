@@ -1,4 +1,4 @@
-module github.com/hacdias/xkcd-archiver
+module go.hacdias.com/xkcd-archiver
 
 go 1.21
 
