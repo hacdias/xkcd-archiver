@@ -5,7 +5,7 @@
 ## Install
 
 ```
-go install go.hacdias.com/xkcd-archiver
+go install go.hacdias.com/xkcd-archiver@latest
 ```
 
 ## Usage
@@ -24,8 +24,8 @@ Flags:
 
 ## Contributing
 
-PRs accepted.
+Feel free to open an issue or a pull request.
 
 ## License
 
-MIT © Henrique Dias
+[MIT License](LICENSE) © [Henrique Dias](https://hacdias.com)
