@@ -4,7 +4,7 @@ go 1.21
 
 require (
 	github.com/karlseguin/typed v1.1.8
-	github.com/spf13/cobra v1.7.0
+	github.com/spf13/cobra v1.8.0
 )
 
 require (
