@@ -1,6 +1,6 @@
 module go.hacdias.com/xkcd-archiver
 
-go 1.21
+go 1.22
 
 require (
 	github.com/karlseguin/typed v1.1.8
